@@ -57,25 +57,30 @@
         </div>
         
     <button type="button" 
-        class="btn btn-primary m-2 float-start"
+        class="btn btn-primary m-2 float-start text-light"
         data-bs-toggle="modal"
         data-bs-target="#exampleModal"
         @click="addClick()">
         Adicionar Livro
     </button>
+
+    <div class="d-flex flex-row">
+        <input class="form-control m-2" v-model="search" placeholder="Pesquisar">
+    </div>
+
     <table class="table mt-5 table-light table-bordered table-striped table-hover shadow p-3 mb-5 bg-white rounded">
     <thead>
         <tr class="text-center">
             <th>
                 ID
                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                <button type="button" class="btn btn-light btn-sm">
+                <button type="button" class="btn btn-light btn-sm" @click="sortBy('idedi',true)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-down-square" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.5 2.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z"/>
                     </svg>
                 </button>
 
-                <button type="button" class="btn btn-light btn-sm">
+                <button type="button" class="btn btn-light btn-sm" @click="sortBy('idedi',false)">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-square" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.5 9.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V11.5z"/>
                     </svg>
@@ -98,7 +103,7 @@
         </tr>
     </thead>
         <tbody class="text-center">
-            <tr v-for="editora of resedi" :key="editora.id">
+            <tr v-for="editora of FilteredClientes" :key="editora.id">
                 <td>{{editora.idedi}}</td>
                 <td>{{editora.nomedi}}</td>
                 <td>{{editora.cidadedi}}</td>
@@ -124,11 +129,31 @@
             </tr>
         </tbody>
 </table>
+<v-card>
+    <v-card-title>
+      Editoras
+      <v-spacer></v-spacer>
+      <v-text-field
+        v-model="search"
+        append-icon="mdi-magnify"
+        label="Search"
+        single-line
+        hide-details
+      ></v-text-field>
+    </v-card-title>
+    <v-data-table
+      :headers="headers"
+      :items="resedi"
+      :search="search"
+    ></v-data-table>
+  </v-card>
+  
 </div>
 </template>
 
 <script>
     import Editoras from '../services/editoras'
+    import Swal from 'sweetalert2/dist/sweetalert2.js'
 
     export default ({
         data(){
@@ -138,10 +163,28 @@
                     nomedi:'',
                     cidadedi:'',
                 },
+                search:"",
                 resedi:[],
-                errors:[]
+                errors:[],
+                headers: [
+                { text: 'ID', value: 'idedi' },
+                { text: 'Nome Editora', value: 'nomedi' },
+                { text: 'Cidade Editora', value: 'cidadedi' },
+                { text: 'Opções', value: 'actions', sortable: false },
+
+                
+                ],
             }
         },
+
+        computed: {
+            FilteredClientes() {
+                return this.resedi.filter(editora => editora.nomedi.toLowerCase().includes(this.search.toLowerCase())
+                );
+                
+            }
+        },
+
         name: 'Editoras',
         mounted(){
             
@@ -150,6 +193,15 @@
         },
 
         methods:{
+
+            sortBy(prop,asc){
+                if(asc){
+                this.resedi.sort((a,b) => a[prop] < b[prop] ? -1 : 1)
+                }else{
+                this.resedi.sort((a,b) => b[prop] < a[prop] ? -1 : 1)
+                }
+            },
+
             listar(){
                 Editoras.listareditoras().then(resposta => {
                 this.resedi = resposta.data
@@ -159,7 +211,11 @@
                 if(!this.editora.idedi){
                     Editoras.salvareditoras(this.editora).then(resposta => {
                     this.editora = {}
-                    alert('Salvo com sucesso!')
+                    Swal.fire({                             
+                    text: resposta.data,             
+                    confirmButtonText: "Ok",     
+                    icon: "success",         
+                    });
                     this.listar()
                     }).catch(e => {
                     console.log(e.response.data.errors)
@@ -167,7 +223,11 @@
                 }else{
                    Editoras.atualizareditoras(this.editora).then(resposta => {
                     this.editora = {}
-                    alert('Dados atualizados com sucesso!')
+                    Swal.fire({                             
+                    text: resposta.data,             
+                    confirmButtonText: "Ok", 
+                    icon: "success",             
+                    });
                     this.listar()
                     }).catch(e => {
                     console.log(e.response.data.errors)
@@ -183,7 +243,12 @@
 
                 if(confirm('Tem certeza que deseja excluir a editora?')){
                     Editoras.apagareditoras(editora).then(resposta =>{
-                    this.listar();
+                    this.listar()
+                    Swal.fire({                             
+                    text: resposta.data,             
+                    confirmButtonText: "Ok",  
+                    icon: "info",            
+                    });
                 })
                 }      
             },
