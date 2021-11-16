@@ -1,68 +1,66 @@
 <template>
-<div class="container mt-5 ">
+<div class="container mt-5">
     <h1 class="text-center">DashBoard</h1>
     <h3>Último Livro Alugado</h3>
-    <table class="table mt-5 table-light table-bordered table-striped table-hover shadow p-3 mb-5 bg-white rounded">
+    <table class="table mt-5 table-info table-bordered table-striped table-hover shadow p-3 mb-5 bg-white rounded">
         <thead>
             <tr class="text-center">
                 <th>
-                    ID
+                    Data do Aluguel
                 </th>
                 <th>
         
                     Nome do Livro
+                
+                </th>
+                <th>
+        
+                    Cliente
                 
                 </th>
             </tr>
         </thead>
         <tbody class="text-center">
             <tr v-for="ult of resula" :key="ult.id">
-                <td>{{ult.livroalu}}</td>
+                <td>{{ult.dataalu}}</td>
                 <td>{{ult.nomeliv}}</td>
+                <td>{{ult.nomecli}}</td>
             </tr>
         </tbody>
     </table>
 
     <h3>Livros mais alugados</h3>
-    <table class="table mt-5 table-light table-bordered table-striped table-hover shadow p-3 mb-5 bg-white rounded">
-        <thead>
-            <tr class="text-center">
-                <th>
-                    ID
-                </th>
-                <th>
-        
-                    Nome do Livro
-                
-                </th>
-                <th>
-        
-                    N° de Alugueis
-                
-                </th>
-            </tr>
-        </thead>
-        <tbody class="text-center">
-            <tr v-for="lmsa of reslmsa" :key="lmsa.id">
-                <td>{{lmsa.idliv}}</td>
-                <td>{{lmsa.nomeliv}}</td>
-                <td>{{lmsa.quantidade}}</td>
-            </tr>
-        </tbody>
-    </table>
+    <apexchart
+        v-if="!loading"
+        type="pie"
+        width="500"
+        :options="chartOptions"
+        :series="series"
+    ></apexchart>
 </div>
 </template>
 
 <script>
   import Ultlivroalug from '../services/ultlivroalug'
-  import Livromsalug from '../services/livromsalug'
-  
-     
+  import Livromsalug from '../services/livromsalug'  
+
   export default ({
         data(){
             return{
+                loading: true,
                 resula:[],
-                reslmsa:[]
+                reslmsa:[] ,
+
+                series: [0, 0, 0],
+                chartOptions: {
+                    labels: ['', '', ''],
+                    colors: ['#87CEFA', '#00BFFF', '#1E90FF'],
+                    chart: {
+                        type: 'pie',
+                        height: '400',
+                        width: '550'
+                    }
+        }, 
             }
             
         },
@@ -82,6 +80,13 @@
             })
                 Livromsalug.listar().then(resposta => {
                 this.reslmsa = resposta.data
+                this.series[0] = this.reslmsa[0].quantidade
+                this.series[1] = this.reslmsa[1].quantidade
+                this.series[2] = this.reslmsa[2].quantidade
+                this.chartOptions.labels[0] = this.reslmsa[0].nomeliv
+                this.chartOptions.labels[1] = this.reslmsa[1].nomeliv
+                this.chartOptions.labels[2] = this.reslmsa[2].nomeliv
+                this.loading = false
             })
             },
             
