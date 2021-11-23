@@ -110,7 +110,7 @@
               class="mb-2"
               data-bs-toggle="modal"
               data-bs-target="#exampleModal"
-              @click="addClick()"
+              @click="limparcampos();"
             >
               Adicionar Livro
       </v-btn>
@@ -127,7 +127,6 @@
       :headers="headers"
       :items="resliv"
       :search="search"
-      :items-per-page="5"
     >
     <template v-slot:[`item.actions`]="{ item }">
           <v-icon small color="#00BFFF" @click="editar(item)" data-bs-toggle="modal"
@@ -176,14 +175,6 @@
             }
         },
 
-        computed: {
-            FilteredLivros() {
-                return this.resliv.filter(livro => livro.nomeliv.toLowerCase().includes(this.search.toLowerCase())
-                );
-                
-            }
-        },
-
         name: 'Livros',
         mounted(){
             
@@ -192,14 +183,6 @@
         },
 
         methods:{
-
-            sortBy(prop,asc){
-                if(asc){
-                this.resliv.sort((a,b) => a[prop] < b[prop] ? -1 : 1)
-                }else{
-                this.resliv.sort((a,b) => b[prop] < a[prop] ? -1 : 1)
-                }
-            },
 
             listar(){
                 Livros.listarlivros().then(resposta => {
@@ -212,24 +195,24 @@
             salvar(){
                 if(!this.livro.idliv){
                     Livros.salvarlivros(this.livro).then(resposta => {
-                    this.livro = {};
                     Swal.fire({                             
                     text: resposta.data,             
                     confirmButtonText: "Ok",  
                     icon: "success",            
                     });
+                    this.limparcampos();
                     this.listar();
                     }).catch(e => {
                     console.log(e.response.data.errors)
                 })
                 }else{
                    Livros.atualizarlivros(this.livro).then(resposta => {
-                    this.livro = {};
                     Swal.fire({                             
                     text: resposta.data,             
                     confirmButtonText: "Ok", 
                     icon: "success",             
                     });
+                    this.limparcampos();
                     this.listar();
                     }).catch(e => {
                     console.log(e.response.data.errors)
@@ -250,13 +233,20 @@
                     confirmButtonText: "Ok",
                     icon: "info",              
                     });
-                    this.listar();
+                    this.listar()
                 })
                 }      
             },
 
-             addClick(){
-                this.livro = {};
+            limparcampos(){
+                this.livro = {
+                    idliv:0,
+                    nomeliv:"",
+                    editliv:"",
+                    autorliv:"",
+                    lcmliv:"",
+                    qtdliv:0,
+                };
             }
         }
     })

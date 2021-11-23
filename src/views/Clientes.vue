@@ -13,7 +13,7 @@
                     </div>
                     <div class="modal-body">
                     
-                        <form class="row g-1 text-center d-flex justify-content-center" @submit.prevent="salvar">
+                        <form class="row g-1 text-center d-flex justify-content-center" @submit.prevent="guardar">
             
                                 <label>Nome do Cliente</label>
                                 <input class="w-100 form-control" type="text" v-model="cliente.nomecli">
@@ -103,7 +103,7 @@
               class="mb-2"
               data-bs-toggle="modal"
               data-bs-target="#exampleModal"
-              @click="addClick()"
+              @click="limparcampos()"
             >
               Adicionar Cliente
       </v-btn>
@@ -147,7 +147,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js'
                     nomecli:'',
                     enderecocli:'',
                     cidadecli:'',
-                    emailcli:'',
+                    emailcli:''
                 },
                 search:"",
                 rescli:[],
@@ -167,13 +167,6 @@ import Swal from 'sweetalert2/dist/sweetalert2.js'
             }
         },
         
-        computed: {
-            FilteredClientes() {
-                return this.rescli.filter(cliente => cliente.nomecli.toLowerCase().includes(this.search.toLowerCase())
-                );
-                
-            }
-        },
         name: 'Clientes',
         mounted(){
             
@@ -188,47 +181,41 @@ import Swal from 'sweetalert2/dist/sweetalert2.js'
         },
         methods:{
 
-            sortBy(prop,asc){
-                if(asc){
-                this.rescli.sort((a,b) => a[prop] < b[prop] ? -1 : 1)
-                }else{
-                this.rescli.sort((a,b) => b[prop] < a[prop] ? -1 : 1)
-                }
-            },
-
             listar(){
                 Clientes.listar().then(resposta => {
                 this.rescli = resposta.data
             })
             },
-            salvar(){
-                if(!this.cliente.idcli){
-                    Clientes.salvar(this.cliente).then(resposta => {
-                    this.cliente;
+
+            guardar(){
+                if(this.cliente.idcli){
+                    Clientes.atualizar(this.cliente).then(resposta => {
                     Swal.fire({                             
                     text: resposta.data,             
-                    confirmButtonText: "Ok", 
+                    confirmButtonText: "Ok",   
                     icon: "success",           
                     });
+                    this.limparcampos();
                     this.listar();
                     }).catch(e => {
                     console.log(e.response.data.errors)
-                })
+                }) 
                 }else{
-                   Clientes.atualizar(this.cliente).then(resposta => {
-                    this.cliente;
+                   Clientes.salvar(this.cliente).then(resposta => {
                     Swal.fire({                             
-                    text: resposta.data,                 
+                    text: resposta.data,             
                     confirmButtonText: "Ok",  
-                    icon: "success",           
+                    icon: "success",            
                     });
+                    this.limparcampos();
                     this.listar();
                     }).catch(e => {
                     console.log(e.response.data.errors)
-                })  
+                })   
                 }
                 
             },
+
             editar(cliente){
                 this.cliente = cliente
             },
@@ -237,18 +224,14 @@ import Swal from 'sweetalert2/dist/sweetalert2.js'
 
                 if(confirm('Tem certeza que deseja excluir o cliente?')){
                     Clientes.apagar(cliente).then(resposta =>{
-                    this.listar()
                     Swal.fire({                             
                     text: resposta.data,             
                     confirmButtonText: "Ok",  
                     icon: "info",            
                     });
+                    this.listar()
                 })
                 }   
-            },
-
-            addClick(){
-                this.cliente;
             },
 
             validateEmail(value){
@@ -260,7 +243,18 @@ import Swal from 'sweetalert2/dist/sweetalert2.js'
             this.msg['emailcli'] = 'Please enter a valid email address';
             this.listar()
             } 
+            },
+
+            limparcampos(){
+                this.cliente = {
+                   idcli:0,
+                    nomecli:"",
+                    enderecocli:"",
+                    cidadecli:"",
+                    emailcli:"",
+                };
             }
+
         }
     })
 </script>

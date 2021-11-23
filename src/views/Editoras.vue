@@ -66,7 +66,7 @@
               class="mb-2"
               data-bs-toggle="modal"
               data-bs-target="#exampleModal"
-              @click="addClick()"
+              @click="limparcampos();"
             >
               Adicionar Editora
       </v-btn>
@@ -125,15 +125,6 @@
                 ],
             }
         },
-
-        computed: {
-            FilteredClientes() {
-                return this.resedi.filter(editora => editora.nomedi.toLowerCase().includes(this.search.toLowerCase())
-                );
-                
-            }
-        },
-
         name: 'Editoras',
         mounted(){
             
@@ -142,15 +133,6 @@
         },
 
         methods:{
-
-            sortBy(prop,asc){
-                if(asc){
-                this.resedi.sort((a,b) => a[prop] < b[prop] ? -1 : 1)
-                }else{
-                this.resedi.sort((a,b) => b[prop] < a[prop] ? -1 : 1)
-                }
-            },
-
             listar(){
                 Editoras.listareditoras().then(resposta => {
                 this.resedi = resposta.data
@@ -159,24 +141,24 @@
             salvar(){
                 if(!this.editora.idedi){
                     Editoras.salvareditoras(this.editora).then(resposta => {
-                    this.editora = {};
                     Swal.fire({                             
                     text: resposta.data,             
                     confirmButtonText: "Ok",     
                     icon: "success",         
                     });
+                    this.limparcampos();
                     this.listar();
                     }).catch(e => {
                     console.log(e.response.data.errors)
                 })
                 }else{
                    Editoras.atualizareditoras(this.editora).then(resposta => {
-                    this.editora = {};
                     Swal.fire({                             
                     text: resposta.data,             
                     confirmButtonText: "Ok", 
                     icon: "success",             
                     });
+                    this.limparcampos();
                     this.listar();
                     }).catch(e => {
                     console.log(e.response.data.errors)
@@ -192,18 +174,22 @@
 
                 if(confirm('Tem certeza que deseja excluir a editora?')){
                     Editoras.apagareditoras(editora).then(resposta =>{
-                    this.listar()
                     Swal.fire({                             
                     text: resposta.data,             
                     confirmButtonText: "Ok",  
                     icon: "info",            
                     });
+                    this.listar()
                 })
                 }      
             },
 
-            addClick(){
-                this.editora = {};
+            limparcampos(){
+                this.editora = {
+                    idedi:0,
+                    nomedi:"",
+                    cidadedi:"",
+                };
             }
         }
 

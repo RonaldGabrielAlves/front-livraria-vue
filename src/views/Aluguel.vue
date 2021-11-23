@@ -217,27 +217,11 @@
             }
         },
 
-         computed: {
-            FilteredAluguel() {
-                return this.resalug.filter(aluga => aluga.nomeliv.toLowerCase().includes(this.search.toLowerCase())
-                )
-                
-            }
-        },
-
         mounted(){
             this.listar()
         },
 
         methods:{
-
-            sortBy(prop,asc){
-                if(asc){
-                this.resalug.sort((a,b) => a[prop] < b[prop] ? -1 : 1)
-                }else{
-                this.resalug.sort((a,b) => b[prop] < a[prop] ? -1 : 1)
-                }
-            },
 
             listar(){
                 Aluguell.listar().then(resposta => {
