@@ -144,7 +144,7 @@
                     Swal.fire({                             
                     text: resposta.data,             
                     confirmButtonText: "Ok",     
-                    icon: "success",         
+                    icon: "info",         
                     });
                     this.limparcampos();
                     this.listar();
@@ -156,7 +156,7 @@
                     Swal.fire({                             
                     text: resposta.data,             
                     confirmButtonText: "Ok", 
-                    icon: "success",             
+                    icon: "info",             
                     });
                     this.limparcampos();
                     this.listar();

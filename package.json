@@ -9,6 +9,7 @@
   "dependencies": {
     "apexcharts": "^3.29.0",
     "axios": "^0.24.0",
+    "moment": "^2.29.1",
     "sweetalert2": "^11.1.9",
     "vue": "^2.6.11",
     "vue-apexcharts": "^1.6.2",
